@@ -14,6 +14,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterTest;
@@ -79,15 +80,19 @@ public class Userflower {
         driver.findElement(By.className("sort-text")).click();
         driver.findElement(By.xpath("//li[contains(text(),\"What's New\")]")).click();
 
-        WebDriverWait wait=new WebDriverWait(driver,30);
+        WebDriverWait wait = new WebDriverWait(driver, 30);
         // Wait till the element is not visible
-        WebElement element2 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("prodImgBox")));
-        element2.click();
+        By elementBy = By.className("prodImgBox");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(elementBy));
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("loaderDiv")));
+        wait.until(ExpectedConditions.elementToBeClickable(elementBy));
+
+        driver.findElement(elementBy).click();
         Set<String> handleswindow = driver.getWindowHandles();
 
         for (String windowHandle : handleswindow) {
-
-            driver.switchTo().window(windowHandle);
+            if (!windowHandle.equals(driver.getWindowHandle()))
+                driver.switchTo().window(windowHandle);
 
         }
 
@@ -96,10 +101,11 @@ public class Userflower {
         ArrayList<WebElement> sizeList = new ArrayList<WebElement>(driver.findElements(By.xpath("//*[contains(@class, 'size-data')]")));
 
         for (WebElement element1 : sizeList) {
-            if (element1.isEnabled()) {
+            if (!element1.getAttribute("class").contains("disabled")) {
                 element1.click();
                 break;
             }
+//            System.out.println(element1.getAttribute("class"));
 
         }
 
@@ -120,7 +126,7 @@ public class Userflower {
     @AfterTest
     public void teardown() {
 // TODO Auto-generated method stub
-        driver.close();
+        driver.quit();
         driver = null;
 
 
